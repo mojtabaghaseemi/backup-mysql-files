@@ -1,8 +1,13 @@
 # backup-mysql-files
 <div align="center">Backup Mysql and Files with Docker in Python</div>
 
+### 1. Install Ftpdlib
 
-## 1. Edit File Config 
+``` bash
+pip install pyftpdlib
+```
+
+## 2. Edit File Config 
 > Example:
 
 ``` python
@@ -29,8 +34,18 @@ date_format = "%Y_%m_%d-%H_%M"
 backup_name_format = "%date%-%backupName%"
 ```
 
-### 2. Run
+### 3. Run for once
 
 ``` bash
 python3 backup.py
+```
+
+### 4. ( Run Forever ) -> Set Timer in CronTab (for Server)
+
+``` bash
+crontab -e
+```
+
+``` bash
+0 0,12 * * * python3 backup.py
 ```
