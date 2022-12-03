@@ -32,7 +32,7 @@ hostpass = "TEST"
 folder_upload_file_backup = "/backup/file/"
 folder_upload_mysql_backup = "/backup/sql/"
 
-# ------------- name format backup -------=------
+# ------------- name format backup --------------
 
 date_format = "%Y_%m_%d-%H_%M"
 backup_name_format = "%date%-%backupName%"
