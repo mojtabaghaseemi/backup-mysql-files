@@ -15,7 +15,7 @@ def getFileName(name):
     return fileName
 
 def clearBackups():
-    print("INFO", "Cleaning backup dir...")
+    print("Cleaning backup dir...")
     os.system(f"rm -r {backup_location}/ && mkdir {backup_location}")
     print("Successfully deleted old backup files")
 
