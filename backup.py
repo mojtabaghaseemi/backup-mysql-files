@@ -42,7 +42,7 @@ def backup():
         if (mysql_backups == True):
             mysql_backup_src = mysql_backup()
         print("Starting backup Files ...")
-        status = os.system("cd " + backup_location + " && tar -czvf " + backupFileName + " " + dir)
+        status = os.system("cd " + backup_location + " && tar -czvf " + backupFileName + " " + backup_dirs)
         print("Backup Files Successfully!")
         session = ftplib.FTP(hosturl, hostuser, hostpass)
         # ------------- Delete Old File Backup --------------
