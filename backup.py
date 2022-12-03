@@ -3,24 +3,6 @@ import time
 import ftplib
 from config import *
 
-# config
-backup_location = "/backup"
-backup_dirs = "/root/"
-mysql_backups = True
-clear_backups = True
-folder_docker_compose = "/root/"
-name_mysql_in_docker_compose = "mysql" # or [ mariadb or mysql-server ]
-
-mysql_pass = "TEST"
-mysql_username = "root"
-
-hosturl = "test.example.com"
-hostuser = "TEST"
-hostpass = "TEST"
-
-date_format = "%Y_%m_%d-%H_%M"
-backup_name_format = "%date%-%backupName%"
-
 os.environ['TZ'] = 'Asia/Tehran'
 time.tzset()
 date = time.strftime(date_format)
@@ -55,49 +37,50 @@ def backup():
     else:
         if (clear_backups == True):
             clearBackups()
-        counter = 0
-        for dir in backup_dirs:
-            backupFileName = getFileName('backup_' + str(counter + 1)) + '.tar.gz'
-            counter += 1
-            mysql_backup_src = ""
-            if (mysql_backups == True):
-                mysql_backup_src = mysql_backup()
-            print("Starting backup for " + dir +"...")
-            status = os.system("cd " + backup_location + " && tar -czvf " + backupFileName + " " + dir)
-            print("Backup for "+dir+" successfully")
-            session = ftplib.FTP(hosturl, hostuser, hostpass)
-            filelist = []
+        backupFileName = getFileName('backup_') + '.tar.gz'
+        mysql_backup_src = ""
+        if (mysql_backups == True):
+            mysql_backup_src = mysql_backup()
+        print("Starting backup Files ...")
+        status = os.system("cd " + backup_location + " && tar -czvf " + backupFileName + " " + dir)
+        print("Backup Files Successfully!")
+        session = ftplib.FTP(hosturl, hostuser, hostpass)
+        # ------------- Delete Old File Backup --------------
+        filelist = []
+        try:
+            files = session.nlst(str(folder_upload_file_backup))
+            for f in files:
+               if (str(f).find("/.") == -1):
+                  filelist += [str(f)]
+            if (len(filelist) == 2):
+               filelist.reverse()
+               session.delete(str(filelist[0]))
+        except:
+            pass
+        # ----------------------------------------------
+        file = open((backup_location) + '/' + (backupFileName), 'rb')
+        session.storbinary(f'STOR {folder_upload_file_backup}' + str(backupFileName), file)
+        file.close()
+        if (mysql_backup_src != ""):
+            # ------------- Delete Old Mysql Backup --------------
             try:
-                files = session.nlst("backup/file")
+                files = session.nlst(str(folder_upload_mysql_backup))
                 for f in files:
-                   if (str(f).find("/.") == -1):
-                      filelist += [str(f)]
+                    if (str(f).find("/.") == -1):
+                        filelist += [str(f)]
                 if (len(filelist) == 2):
-                   filelist.reverse()
-                   session.delete(str(filelist[0]))
+                    filelist.reverse()
+                    session.delete(str(filelist[0]))
             except:
                 pass
-            file = open((backup_location) + '/' + (backupFileName), 'rb')
-            session.storbinary('STOR /backup/file/' + str(backupFileName), file)
-            file.close()
-            if (mysql_backup_src != ""):
-                try:
-                    files = session.nlst("backup/sql")
-                    for f in files:
-                        if (str(f).find("/.") == -1):
-                            filelist += [str(f)]
-                    if (len(filelist) == 2):
-                        filelist.reverse()
-                        session.delete(str(filelist[0]))
-                except:
-                    pass
-                file2 = open((backup_location) + '/' + str(mysql_backup_src),'rb')
-                session.storbinary('STOR /backup/sql/' + str(mysql_backup_src), file2)
-                file2.close()
-            session.quit()
-            print('Upload successfully!')
-            if (clear_backups == True):
-                clearBackups()
+            # ----------------------------------------------
+            file2 = open((backup_location) + '/' + str(mysql_backup_src),'rb')
+            session.storbinary(f'STOR {folder_upload_mysql_backup}' + str(mysql_backup_src), file2)
+            file2.close()
+        session.quit()
+        print('Upload Successfully!')
+        if (clear_backups == True):
+            clearBackups()
 
 if __name__ == "__main__":
     backup()
