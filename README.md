@@ -34,7 +34,7 @@ date_format = "%Y_%m_%d-%H_%M"
 backup_name_format = "%date%-%backupName%"
 ```
 
-### 3. Run for once
+### 3. Run
 
 ``` bash
 python3 backup.py
